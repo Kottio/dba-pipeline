@@ -39,3 +39,5 @@ dashboard/.evidence/
 .vscode/
 
 Notetaking.md
+
+prior-testing/dbt-ducklake/target/
