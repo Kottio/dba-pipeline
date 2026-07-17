@@ -19,6 +19,12 @@ Workflow: Tom writes raw notes in `Notetaking.md` → Claude formats them here.
 
 **Correction applied:** delete the not-yet-understood files and let the project grow organically. Each file comes back only when its phase needs it, explained first, understood before committed.
 
+**Applied by Tom (same day):**
+- Deleted `docker-compose.yml`, the GitHub workflow, and the pre-written dependencies in `pyproject.toml` — each returns when its phase needs it.
+- Deleted Claude's `.git` entirely (it was littered with stale lock files — the remote bridge can't delete git's temp files) and re-initialized it himself. New rule: **git runs only on the owner's machine**; the AI proposes commands, the human executes.
+- Confirmed the local-first order: everything proven locally → GitHub → droplet last, to optimize cost.
+- Brought the project plan into the repo to guide the work.
+
 **Lesson:** an AI will happily build the whole house on day one. The human's job is pacing: nothing enters the repo that its owner can't explain. "AI does syntax, humans own semantics" also means humans own the *rhythm*.
 
 > Note originale (FR) : « Création de beaucoup de fichiers que je ne comprends pas (…) Trop de décisions prises sans évolution au fur et à mesure. Je vais demander à Claude ce que sont ces fichiers et les supprimer pour que le projet grandisse organiquement. »
