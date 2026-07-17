@@ -1,0 +1,5 @@
+sources:
+  - name: my_lake
+    database: my_ducklake
+    tables:
+      - name: test_table

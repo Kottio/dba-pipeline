@@ -28,3 +28,31 @@ Workflow: Tom writes raw notes in `Notetaking.md` → Claude formats them here.
 **Lesson:** an AI will happily build the whole house on day one. The human's job is pacing: nothing enters the repo that its owner can't explain. "AI does syntax, humans own semantics" also means humans own the *rhythm*.
 
 > Note originale (FR) : « Création de beaucoup de fichiers que je ne comprends pas (…) Trop de décisions prises sans évolution au fur et à mesure. Je vais demander à Claude ce que sont ces fichiers et les supprimer pour que le projet grandisse organiquement. »
+
+## Phase 1 prep — engine decision & DuckLake sandbox — 2026-07-17
+
+**Task given to AI:** define what Phase 1 (dependencies/technologies) actually needs; validate the transform engine.
+
+**What the human had to correct — the day's real lesson:**
+- Claude assumed dbt = Python package. **dbt Fusion is a Rust binary** — not installed via uv, travels via a pinned version in README prerequisites. AI knowledge is not always current.
+- Claude assumed Fusion+DuckDB support was uncertain. Tom installed it and proved it works, then pushed the decision through: **Fusion from the start** (ADR 0002).
+- Pattern confirmed twice in one day: *never let the AI decide on assumptions — a 10-minute test beats its training data.* The human owns decisions; the AI provides context and gets verified.
+
+**Also revised:** Phase 1 needs no Docker at all — Python deps via uv, Fusion as binary, DuckLake as files. Containers arrive only when a real service does (catalog Postgres, at concurrency time).
+
+**Sandbox results (first_Test/) — what is now proven:**
+- Fusion 2.0.0-preview.196 + DuckDB + DuckLake: `dbt debug` OK, `dbt run` green end-to-end (source in lake → model materialized back into lake).
+- Traps found and understood on the way: a file *named* `.ducklake` attached via plain `path:` is just a native DuckDB file — only the `ducklake:` attach prefix makes a lake · `ref()` is for models, `source()` for external tables · views live in the catalog (no Parquet), tables write Parquet into `.files/`.
+
+**Validated configuration (the trinity):**
+1. `profiles.yml` — attach the lake: `attach: [{path: "ducklake:my_ducklake.ducklake", alias: my_ducklake}]`
+2. `dbt_project.yml` — materialize into it: `models: <project>: +database: my_ducklake`
+3. `sources.yml` — locate raw data in it: `database: my_ducklake` (+ `schema:` when source name ≠ schema)
+
+**Mental model (keep):**
+```
+DuckDB    = the engine (a program that runs SQL)
+DuckLake  = the memory (Parquet files + a catalog that indexes them)
+ATTACH 'ducklake:...' = the key connecting engine to memory
+views live in the catalog · tables live as Parquet
+```

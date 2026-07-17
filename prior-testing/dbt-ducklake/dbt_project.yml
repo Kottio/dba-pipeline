@@ -1,0 +1,8 @@
+name: dbt_ducklake
+profile: dbt_test
+
+model-paths: ["models"]
+
+models:
+  dbt_ducklake:
+    +database: my_ducklake

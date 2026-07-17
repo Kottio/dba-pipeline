@@ -30,4 +30,63 @@ Clarified that the project shoudl be first updated to github then to droplet.
 Added the all project plan within the repo as .gitignore to help claude. 
 ----
 
+Phase 1- Infra/dependencies
+Changed the planmnign phase, nothing needed right now docker containers. 
+only python dependencies and other tech. 
+Had to explain dbt fusion is not python, AI not alway up to date. 
 
+
+Had to push that dbt fusion works with duckdb. 
+Experience was clear advantage to not let claude decide on assumption. 
+
+--------
+Testing dbt fusion with ducklake
+Creating a test folder
+duckdb dev.duckdb 
+INSTALL ducklake;
+
+ATTACH 'ducklake:my_ducklake.ducklake' AS my_ducklake;
+USE my_ducklake;
+
+CREATE SCHEMA my_lake;
+my_ducklake D
+my_ducklake D CREATE TABLE my_lake.test_table AS
+                SELECT 1 AS id, 'hello ducklake' AS name, now() AS created_at
+                UNION ALL
+                SELECT 2, 'second row', now();
+my_ducklake D
+my_ducklake D SELECT * FROM my_lake.test_table;
+
+
+
+OK in Profiles we need to attach the ducklake 
+  outputs:
+    ducklake:
+      type: duckdb
+      path: dev.duckdb
+      attach:
+        - path: "ducklake:my_ducklake.ducklake"
+          alias: my_ducklake
+
+in project we need to set it to this database fromt he alias. 
+models:
+  dbt_ducklake:
+    +database: my_ducklake
+
+
+in Source we need to expliclity also set the database 
+sources:
+  - name: my_lake
+    database: my_ducklake
+    tables:
+      - name: test_table
+
+
+Accessing the ducklake alway need to be done via duckdb and ATTACH ducklake:my_ducklake.ducklake 
+
+DuckDB     = the engine (a program that runs SQL)
+DuckLake   = the memory (Parquet files + a catalog that indexes them)
+ATTACH 'ducklake:...'  = the key that connects engine to memory
+views live in the catalog · tables live as Parquet
+
+------

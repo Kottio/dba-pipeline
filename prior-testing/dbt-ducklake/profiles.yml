@@ -1,0 +1,9 @@
+dbt_test:
+  target: ducklake
+  outputs:
+    ducklake:
+      type: duckdb
+      path: dev.duckdb
+      attach:
+        - path: "ducklake:my_ducklake.ducklake"
+          alias: my_ducklake
