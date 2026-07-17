@@ -1,0 +1,39 @@
+# secrets & env
+.env
+*.pem
+*.key
+
+# python
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.pytest_cache/
+
+# data — the lake never goes to git
+data/
+*.duckdb
+*.duckdb.wal
+*.parquet
+
+# dbt
+transform/target/
+transform/dbt_packages/
+transform/logs/
+
+# dagster
+orchestration/.dagster_home/
+orchestration/storage/
+
+# dlt
+ingestion/.dlt/secrets.toml
+ingestion/_storage/
+
+# evidence / node
+dashboard/node_modules/
+dashboard/.evidence/
+
+# os / editors
+.DS_Store
+.idea/
+.vscode/

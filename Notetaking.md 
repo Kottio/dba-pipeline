@@ -1,0 +1,33 @@
+Personal Notes: You need to look at this and add it formated into docs/ai-log 
+
+
+## 17/07
+Plannification avec Claude de la pipleine. 
+
+-------
+Creation de Repo par Claude
++ Creation de dossier important pour github
+- Creation de beaucoup de fichiers que je ne comprends pas
+  /sqlfluff
+  /docker-compose deja ecris??? 
+  /.github/workflow creer sans explication ou communications 
+- Trop de decision prises sans evolution au fur et a mesure. 
+
+I will ask claude what are those files that i don't underdanst and delete them so we grow the project 
+organically. 
+
+Delete Docker Compose, githubWorflow. 
+in uv project deleted dependencies written before even working on i. 
+sqlfluff will be creqateed when needed. 
+
+Reset the git with git init delted the git created by claude.
+-----
+
+Changed to plan to only upload to Droplet when the project wokred locally already to op[timiose cosst]
+Clarified that the project shoudl be first updated to github then to droplet. 
+
+-- 
+Added the all project plan within the repo as .gitignore to help claude. 
+----
+
+

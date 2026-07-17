@@ -1,0 +1,1 @@
+.sqlfluff — configuration for SQLFluff, a linter for SQL: a program that reads your .sql files and flags style problems (inconsistent capitalization, messy indentation, overlong lines) without running them. Think spell-checker for SQL. The file just sets its preferences:
