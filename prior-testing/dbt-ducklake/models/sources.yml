@@ -3,3 +3,4 @@ sources:
     database: my_ducklake
     tables:
       - name: test_table
+      - name: table_foo

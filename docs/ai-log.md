@@ -56,3 +56,18 @@ DuckLake  = the memory (Parquet files + a catalog that indexes them)
 ATTACH 'ducklake:...' = the key connecting engine to memory
 views live in the catalog · tables live as Parquet
 ```
+
+## Phase 1 — uv, dlt & the shared-lake proof — 2026-07-20
+
+**Task:** set up uv from scratch; prove dlt can write into the same DuckLake that dbt Fusion uses (the one-lake architecture bet).
+
+**What the AI got wrong (and the human caught):**
+- Proposed `dlt[duckdb]` — Tom asked "duckdb, not ducklake?", forcing a doc check: dlt has a **native `ducklake` destination** with its own extra. Third instance of the pattern: *AI priors lag the ecosystem; verify before adopting.*
+
+**What the collaboration did well:** five failures diagnosed in sequence without losing the thread — each error read carefully, root cause named, lesson extracted (3-slash URLs, file-catalog locks, frozen DATA_PATH, twin catalogs, stray keystroke). The AI proposed abandoning the broken sandbox ("bankruptcy"); Tom insisted on rebuilding until it worked — the right call: the rebuild-from-rubble is now the best-understood part of the stack.
+
+**Proven:** one DuckLake, duckdb-format catalog, shared by three writers — manual SQL, dbt Fusion, dlt — verified side by side in `SHOW ALL TABLES`. The architecture's riskiest assumption is now fact.
+
+**Also shipped (by Tom, solo):** the real lake's birth certificate — `infra/ducklake-setup.sh` created `data/lake_catalog.ducklake` in its final home — and the decision that all non-uv binaries (duckdb CLI, dbt Fusion) get their own recipe in `infra/setup_server.sh`, the future Dockerfile's first draft.
+
+**Rules reinforced:** file catalogs hate concurrent sessions (the droplet's Postgres catalog is now justified by lived experience, not just ADR 0001) · create the lake explicitly, in its final home, DATA_PATH declared · `dev_mode` never in real pipelines.

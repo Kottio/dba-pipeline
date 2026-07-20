@@ -1,24 +1,8 @@
 [project]
 name = "dbuilders-pip"
 version = "0.1.0"
-description = "Self-hosted lakehouse for my course platform - the AE+AI demo project"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 dependencies = [
+    "dlt[ducklake,postgres]>=1.29.0",
+    "pandas>=3.0.3",
 ]
-
-[dependency-groups]
-dev = [
-    "ruff",
-    "sqlfluff",
-    "pytest",
-]
-
-# Versions intentionally unpinned at Phase 0; `uv lock` provides reproducibility.
-# Pin explicitly if an upgrade ever breaks something (and document it in an ADR).
-
-[tool.ruff]
-line-length = 100
-target-version = "py311"
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B"]

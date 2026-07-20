@@ -102,5 +102,101 @@ For infrastrucutre right now I only need duckdb code.
 Putting duckdb code inside script that will go into infra. -> init_lake.sh
 
 Needed dudkdb dependencies things need ot be into a file called setup_server.sh with dbt and duckdb and all technologies who won't be inside uv 
-Also need to be inside Readme? 
+Also need to be inside Readme? Claude unitially forgot to create setupservce,, much easier to keep track when adding to it along the way
+
+create the duckalke setup with specific path for lake files. 
+
+Now investigation uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+
+created mkdir uv/example 
+uv init example 
+uv add urff uv tst 
+
+
+Now Starting realy with 
+`uv init --bare`
+
+Had to search online to find dlt actually had a dlt[ducklake] and could speak natively to it. 
+Claude only new abotu dlt[duckdb]
+
+ `uv add "dlt[postgres, ducklake]"`
+source .venv/bin/activate
+
+cd prior-testing/dbt-ducklake
+dlt initi foo ducklake
+
+Tried to work on it locally had to set a few files.
+
+
+PRoblem the catalog path did not match the actuall parquet files of the test datalake
+
+
+duckdb -c "ATTACH 'ducklake:my_ducklake.ducklake' AS lake (DATA_PATH '/Users/kottio/KottioDev/DBuilders_pip/prior-testing/dbt-ducklake/my_ducklake.ducklake.files/');"
+duckdb -c "
+ATTACH 'ducklake:my_ducklake.ducklake' AS lake;
+CREATE SCHEMA lake.my_lake;
+CREATE TABLE lake.my_lake.test_table AS
+  SELECT 1 AS id, 'hello ducklake' AS name, now() AS created_at
+  UNION ALL SELECT 2, 'second row', now();"
+
+dbt run
+
+secrets toml 
+
+[destination.ducklake.credentials]
+ducklake_name = "my_ducklake"
+catalog = "duckdb:///my_ducklake.ducklake"
+
+[destination.ducklake.credentials.storage]
+bucket_url = "file:///Users/kottio/KottioDev/DBuilders_pip/prior-testing/dbt-ducklake/my_ducklake.ducklake.files"
+
+---
+foo pipline 
+import dlt
+
+pipeline = dlt.pipeline(
+    pipeline_name="foo",
+    destination="ducklake",
+    dataset_name="lake",
+    dev_mode=True,
+)
+
+info = pipeline.run(
+    [{"foo": 1}, {"foo": 2}],
+    table_name="table_foo",
+)
+print(info)
+print(pipeline.dataset().table_foo["foo"].df())
+
+---
+
+
+Can be setting the dev mode to false to not have schema.. 
+
+
+Finished the Sandbox, 
+To test now will create dbt pip to touch foo. 
+
+Ok All worked make sure to create in the same schema. 
+
+Could do this version: 2
+
+sources:
+  - name: my_lake                 # source name (what you write in source())
+    database: my_ducklake
+    schema: my_lake               # physical schema in the lake
+    tables:
+      - name: test_table
+
+  - name: dlt_raw                 # second source, different schema
+    database: my_ducklake
+    schema: lake_schema_20260720055955   # (the timestamped one, for now)
+    tables:
+      - name: table_foo
+
+      and ref different source. 
+
+
 
