@@ -6,7 +6,25 @@
 
 **Decisions locked:** DuckDB + DuckLake (Postgres catalog) · Dagster from day one · daily batch · Evidence.dev + semantic layer/MCP on top.
 
-> **Revision 2026-07-17 — local-first order.** Everything is built and proven locally first; the droplet comes last. New order: Phase 0 (repo) → 2 (ingestion) → 3 (dbt) → 4 (Dagster, manual/local runs) → 5 (CI) → 6 (Evidence) → 7 (semantic+MCP) → **then** Phase 1 (droplet) + deploy automation as the finale. Locally, DuckLake starts with a simple file catalog; the Postgres catalog + nightly schedule + public URLs arrive with the server. Guiding principle (from Phase 0 retro): the project grows organically — no file, tool, or decision enters before its moment, and nothing enters that the owner can't explain.
+## ⭐ Phases v2 (revised 17/07 — supersedes the numbering below)
+
+| # | Phase | Content | Status |
+|---|---|---|---|
+| 0 | Repo & practices | skeleton, conventions, git by owner, organic-growth rule | ✅ done |
+| 1 | **Dependencies & technology validation** | uv env; deps added one by one *when needed*; Fusion binary pinned; sandbox tests proving each techno before adoption | 🚧 in progress — Fusion+DuckLake proven (ADR 0002), uv setup next |
+| 2 | Ingestion | dlt: prod Postgres (read-only, SSL) → DuckLake raw, incremental, PII-safe | ⬜ blocked on: how is prod PG hosted? |
+| 3 | Modeling | dbt Fusion: staging → marts, dimensional model, tests, docs | ⬜ |
+| 4 | Orchestration | Dagster local: assets, manual runs then schedule | ⬜ |
+| 5 | CI/CD | GitHub Actions: lint + dbt build on PR | ⬜ |
+| 6 | Dashboard | Evidence.dev on the marts | ⬜ |
+| 7 | Semantic + MCP | governed metrics, MCP server, LLM Q&A demo | ⬜ |
+| 8 | Droplet (the finale) | DO VPS, Docker packaging of everything, catalog → Postgres, deploy-on-merge, trust & polish | ⬜ |
+
+## 📍 Next step (updated each session)
+
+**2026-07-17 →** Phase 1: `uv init` the project, add the first real dependency (nothing before it's needed), pin `dbt-fusion 2.0.0-preview.196` in README prerequisites.
+Then Phase 2 needs one answer: **prod Postgres — DO managed or self-installed on a droplet?** → create `analytics_ro` user accordingly.
+
 
 **Suggested repo name:** `course-lakehouse` (or `ae-lakehouse-demo`) — public from day one.
 

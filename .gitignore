@@ -41,3 +41,5 @@ dashboard/.evidence/
 Notetaking.md
 
 prior-testing/dbt-ducklake/target/
+
+data/

@@ -89,4 +89,18 @@ DuckLake   = the memory (Parquet files + a catalog that indexes them)
 ATTACH 'ducklake:...'  = the key that connects engine to memory
 views live in the catalog · tables live as Parquet
 
+
+Added a Notetaking cleaning task for claude, reading this notes and cleaning it as well as adinf into docs.
+
 ------
+
+ 20/07 day 2 
+The initial plan of Claude is infromative but too complex and spceific and missing importante part. 
+Starting phase 1 locally, Setting duckdb ducklake, keeping track of the code I write following Documentation. 
+
+For infrastrucutre right now I only need duckdb code. 
+Putting duckdb code inside script that will go into infra. -> init_lake.sh
+
+Needed dudkdb dependencies things need ot be into a file called setup_server.sh with dbt and duckdb and all technologies who won't be inside uv 
+Also need to be inside Readme? 
+

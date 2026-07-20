@@ -28,6 +28,22 @@ _(filled in as phases land)_
 - dbt: `cd transform && dbt build` (targets: `dev` local, `prod` on VPS)
 - Local services: `docker compose -f infra/docker-compose.yml up -d`
 
+## Documentation workflow (who writes what)
+
+- **`Notes/Notetaking.md`** (gitignored): Tom's raw personal notes, any language, any mess. AI never writes here.
+- **`Notes/Cleaned_Notes.md`** (gitignored): when Tom says *"look at notetaking"*, the AI tidies the new raw notes into here — same content, same voice, same language (FR stays FR), typos fixed, commands as code blocks. For Tom to re-read the steps. No AI additions.
+- **`docs/ai-log.md`**: from those same notes + the session, the AI appends the honest working-with-AI record — one entry per work session: task given, what AI did well, what the human had to correct, lesson. Failures are the valuable part.
+- **`docs/decisions/`** (ADRs): any decision with real alternatives (engine, storage, ordering). AI drafts, numbered sequentially; Tom reviews, edits, commits. A decision isn't taken until Tom says so.
+- **`docs/build-plan.md`**: the living plan. The **"📍 Next step"** block at the top is the re-entry point — the AI refreshes it when Tom ends a session ("call it a day").
+
+## Working rules with the owner
+
+- **Git belongs to Tom.** The AI never runs `git init/add/commit/push` — it proposes commands and file contents; Tom executes and commits.
+- **Organic growth.** No file, dependency, or config enters the repo before the phase that needs it, and nothing enters that Tom can't explain. Explain first, create after agreement.
+- **Decisions on evidence, not AI assumptions.** When the AI is unsure (beta tools, current versions), say so and propose a small test; Tom's 10-minute test beats training data.
+
 ## When unsure
 
 Prefer asking / leaving a `TODO(question):` comment over guessing business logic. Grain decisions, metric definitions, and PII classification are human calls — flag them, don't decide them.
+
+
