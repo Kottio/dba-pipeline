@@ -1,0 +1,1 @@
+dlt[ducklake,sql-database]>=1.29.0

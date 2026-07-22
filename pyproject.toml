@@ -3,7 +3,7 @@ name = "dbuilders-pip"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
-    "dlt[ducklake,postgres]>=1.29.0",
+    "dlt[ducklake,postgres,sql-database]>=1.29.0",
     "pandas>=3.0.3",
 ]
 

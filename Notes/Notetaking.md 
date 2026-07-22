@@ -275,5 +275,50 @@ Finally
 - Created the ducklake 
 - created dlt pipipline wirting into it
 - Created dbt project reading and writing into it.
+Full note in obsidian knowledge center for mentee. 
+
+
 
 need to implement absolute path with {{pwd}} and jsutify? 
+
+
+
+
+
+Implement just file executing infre set script with abolut path! 
+
+just init-lake in main repo
+----
+
+Starting the neondb connexion 
+psql 'postgresql://analytics_ro:PWDcfv@ep-tiny-resonance-abow3qnr-pooler.eu-west-2.aws.neon.tech/databuilder_db?sslmode=require&channel_binding=require' -c "SELECT count(*) FROM event;"
+
+CREATE ROLE analytics_ro WITH LOGIN PASSWORD 'secret'
+grant usage on schema public to analytics_ro;
+grant select on all tables in schema public to analytics_ro;
+alter default privileges in schema public grant select on tables to analytics_ro;
+
+uv run dlt init sql_database ducklake
+
+
+ALL the config.toml of dlt are now part of .env
+
+uv add "dlt[sql_database]"
+
+just ingest                # from anywhere in the repo — just finds the justfile,
+Work becasue load_dotenv() in justfile 
+
+
+set -a; source .env; set +a       # set -a = "export everything I source"
+uv run python ingestion/sql_database_pipeline.py
+
+
+
+
+OK so replace toml secret by aboslut path in env var. 
+To use need to export env variable from env. 
+In the dlt pipline can remove credentials of sources as automatically coming from toml which check env first. 
+
+
+dlt extracted students.
+

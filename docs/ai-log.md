@@ -97,3 +97,15 @@ views live in the catalog · tables live as Parquet
 **Also learned:** profile `schema:` sets the target's base schema cleanly; `+schema:` concatenates (`main_analytics`) until `generate_schema_name` is overridden — queued for the real transform/.
 
 **Outcome: EXAM PASSED.** Lake with `lake_schema` (dlt) + `analytics` (dbt), rebuilt solo, every failure understood. The human found the final bug with the AI's own methods — differential tests and file forensics. The mentoring flipped: this story is his to teach now.
+
+## Phase 2 opens — Neon connected, first real extraction — 2026-07-22
+
+**Task:** wire the real source (course-platform Postgres on Neon) into the lake.
+
+**What worked:** the architecture absorbed its first real payload with zero new concepts — read-only role on Neon, credentials and catalog paths in `.env` (dlt double-underscore dialect), `sql_database()` empty-call injection, `just ingest` as the one-word run. First table extracted: `students`.
+
+**Corrections along the way:** `../data/` relative catalog path caught before it shipped (cwd trap, third appearance — pattern is now reflex) · `SOURCE__` vs `SOURCES__` env key · psql command tail pasted into the connection string · the source is named `sql_database`, not `postgres` (dlt naming: postgres is a destination).
+
+**Teaching gold found in an error:** dlt's ConfigFieldMissing traceback prints its entire provider lookup chain (every env spelling, every toml path, in order) — the config system documenting itself at failure time.
+
+**Env inheritance lesson:** `.env` without `export` + plain `source` = variables invisible to child processes; `just`'s dotenv-load (or the `set -a` sandwich) is what actually delivers them. Why the same command works via just and fails bare.

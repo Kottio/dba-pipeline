@@ -24,14 +24,16 @@
 
 ## 📍 Next step (updated each session)
 
-**2026-07-22 → EXAM PASSED** (see ai-log: seven failure modes, alias collision finale).
-Sandbox era closed. Now: **the real build — Phase 2, ingestion.**
+**2026-07-22 (soir) → Phase 2 OPEN: first real table (`students`) extracted from Neon.** 🎉
 
-1. Real `transform/`-style setup in the main repo: profile with `env_var()` attach,
-   `generate_schema_name` override, scratch db named ≠ any alias.
-2. dlt against the course-platform Postgres — read-only `analytics_ro` user, SSL.
-   **Blocking question, unchanged: DO managed database or self-installed on a droplet?**
-3. First real table lands in `data/lake_catalog.ducklake` → first real dbt staging model.
+1. Verify in the lake: `just tables` — confirm `students` + `_dlt_*` landed in the raw schema.
+2. Decide the full table list from Neon (`\dt`) — per table: incremental cursor? PII columns?
+   (PII pseudonymization at ingestion — it's students' data.)
+3. Set a stable `dataset_name` (e.g. `raw`) in the pipeline — no dev_mode, ever.
+4. Then Phase 3 opens: `transform/` dbt project — env_var() attach, scratch db ≠ alias,
+   generate_schema_name override, first staging model on `students`.
+5. Housekeeping: rotate the analytics_ro password (it transited chat/shell history) ·
+   trim ingestion/.gitignore to the dlt-specific head · commit the day's harvest.
 
 ## Architecture
 

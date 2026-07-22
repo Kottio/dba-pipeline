@@ -305,6 +305,71 @@ dbt : profile attach, sources (dont `lake_schema.table_foo` de dlt), un modèle 
 
 ---
 
+## 22/07 — Exam terminé + vrai repo outillé + NEON CONNECTÉ
+
+### Fin de l'examen (dbt)
+
+- dbt a fonctionné après plusieurs pièges — le décisif, trouvé par moi :
+  **le scratch db de dbt (`path:`) ne doit JAMAIS porter le même nom que l'alias du lake**
+  (`data/lake.duckdb` → db "lake" = collision avec `alias: lake` → le ducklake est éclipsé).
+- Leçon méthode : Claude était perdu → s'appuyer sur le GitHub d'un projet bien configuré (datalab).
+- Bilan sandbox : ducklake créé · dlt qui y écrit · dbt qui y lit et écrit.
+  → Note de référence complète dans Obsidian **Knowledge Center** (pour mentee).
+
+### Outillage du vrai repo
+
+- `infra/ducklake-setup.sh` refait proprement : `set -euo pipefail`, `mkdir -p`,
+  **DATA_PATH absolu via `$(pwd)`**, et x-ray du data_path enregistré à la fin.
+- **justfile** = l'interface du projet (`set dotenv-load`, recettes depuis la racine) :
+  `just init-lake` · `just lakehouse` · `just tables` · `just xray` · `just ingest`.
+- `setup-server.sh` réel : uv, duckdb CLI, just, dbt Fusion — épinglés. Brouillon du futur Dockerfile.
+- **`.env` = la vérité machine** (gitignoré, absolu, littéral) — lu par just (dotenv-load),
+  dbt (`env_var()`), dlt (clés à doubles underscores).
+
+### Connexion Neon (la vraie source, enfin)
+
+```sql
+-- rôle lecture seule sur le Postgres Neon (SSL par défaut)
+CREATE ROLE analytics_ro WITH LOGIN PASSWORD '<redacted>';
+GRANT USAGE ON SCHEMA public TO analytics_ro;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO analytics_ro;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO analytics_ro;
+```
+
+```bash
+# vérifier la porte avant tout code
+psql 'postgresql://analytics_ro:<redacted>@<neon-host>/databuilder_db?sslmode=require' -c "SELECT count(*) FROM event;"
+```
+
+### Pipeline dlt réel
+
+```bash
+uv add "dlt[sql_database]"
+uv run dlt init sql_database ducklake
+```
+
+- Dans le pipeline : `sql_database()` **sans argument** = injection — dlt résout les credentials
+  via sa chaîne : **env vars > secrets.toml > config.toml** (l'erreur ConfigFieldMissing
+  imprime toute la chaîne de recherche — documentation vivante).
+- Toute la config machine/secrets est passée dans `.env` :
+  `SOURCES__SQL_DATABASE__CREDENTIALS=postgresql://analytics_ro:...`
+  `DESTINATION__DUCKLAKE__CREDENTIALS__CATALOG=duckdb:////chemin/absolu/...` (**4 slashes = absolu**,
+  3 = relatif, 2 = hostname — convention SQLAlchemy).
+
+### Pourquoi `just ingest` marche et pas la commande directe
+
+Les variables d'env passent parent → enfant **seulement si exportées**.
+`source .env` seul = variables privées du shell, non héritées.
+- `just ingest` → just lit `.env` (dotenv-load) et l'injecte dans l'environnement du process. ✓
+- Manuel : `set -a; source .env; set +a` (= "exporte tout ce que je source") puis `uv run ...`. ✓
+
+### 🎉 Résultat
+
+**`dlt extracted students`** — la première vraie table de la plateforme de cours est entrée
+dans le lac. Phase 2 officiellement ouverte.
+
+---
+
 ## 📌 RÉCAP — tout ce qu'on a vu jusqu'ici
 
 **Le modèle mental (4 lignes) :**
@@ -322,4 +387,4 @@ Python → `pyproject.toml` + `uv.lock` (`uv sync`) · binaires (Fusion, duckdb 
 
 **Les règles du projet :** git m'appartient (l'IA propose, j'exécute) · croissance organique (rien avant son moment, rien que je ne comprends pas) · décisions sur preuve, jamais sur supposition d'IA (Fusion, dlt[ducklake] : deux fois vérifié, deux fois l'IA corrigée) · sessions éphémères, seuls les fichiers restent · les erreurs se documentent (ai-log), elles sont le meilleur contenu.
 
-**État : sandbox terminé, tout prouvé — et le vrai lac est né (`data/lake_catalog.ducklake`, via `infra/ducklake-setup.sh`). Prochaine étape : le vrai build** — lac `data/` dans le repo principal, ingestion réelle depuis le Postgres de la plateforme de cours (il reste à répondre : managé DO ou auto-hébergé ?).
+**État : Phase 2 OUVERTE — Neon connecté (rôle `analytics_ro`), justfile en place, `.env` = vérité machine, et la première vraie table (`students`) extraite dans le lac. Prochaine étape : vérifier dans le lac (`just tables`), choisir les tables + curseurs incrémentaux + décision PII, puis premier modèle staging dbt.** — lac `data/` dans le repo principal, ingestion réelle depuis le Postgres de la plateforme de cours (il reste à répondre : managé DO ou auto-hébergé ?).

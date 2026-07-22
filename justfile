@@ -1,5 +1,6 @@
 # DBuilders Pipeline — every operation the project supports, as named recipes.
 # `just` alone lists them. Recipes always run from the repo root, with .env loaded.
+
 set dotenv-load
 
 # Birth the lake (idempotent; absolute DATA_PATH — see infra/ducklake-setup.sh)
@@ -18,6 +19,10 @@ tables:
 xray:
     duckdb $LAKE_CATALOG -c "SELECT key, value FROM ducklake_metadata;"
 
-# --- coming with their phases (organic rule) ---
-# ingest:      uv run python ingestion/pipeline.py
+
+# Run ingestion (Neon -> lake; credentials & catalog from .env)
+ingest:
+    uv run python ingestion/sql_database_pipeline.py
+
+# --- coming with its phase (organic rule) ---
 # transform:   dbt run --project-dir transform
