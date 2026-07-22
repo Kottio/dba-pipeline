@@ -200,3 +200,80 @@ sources:
 
 
 
+----------------
+21/07
+Redid the the pipeline from scratch struggled a bit. 
+
+NEED the creation of ducklake manuallym, settting as well the file path manually so more clean.
+Then in the dlt, need to reference this path well. 
+Setting uv
+`uv init --bare`
+` uv add "dlt[ducklake]"`
+`uv run dlt init foo ducklake`
+
+
+Two option work Relative path and Aboslut path 
+
+Absolut
+### With Absolut Path $(pwd)/data/lake_files/
+```bash
+mdkir data
+
+duckdb ATTACH 'ducklake:data/my_ducklake.ducklake' as lake; #Without Data Path
+
+IN DLT config 
+
+[destination.ducklake.credentials]
+ducklake_name = "my_ducklake"
+catalog = "duckdb:///data/my_ducklake.ducklake" 
+
+[destination.ducklake.credentials.storage]
+bucket_url = "file:///Users/kottio/KottioDev/DBuilders_pip/prior-testing/SecondFullTest/data/my_ducklake.ducklake.files/"
+```
+
+
+### With Relative Path
+```bash
+ATTACH 'ducklake:data/lake.ducklake' AS lake (DATA_PATH 'data/lake_files')
+
+
+[destination.ducklake.credentials]
+ducklake_name = "lake"
+catalog = "duckdb:///data/lake.ducklake"
+
+  
+
+[destination.ducklake.credentials.storage]
+bucket_url = "file:data/lake_files/"
+
+
+#And then this showed me the dlt
+attach 'ducklake:data/lake.ducklake' as lake;
+memory D use lake;
+lake D .tables;
+
+#The lake_files folder is in the repo data/ 
+
+```
+
+Claude was struggling a lot witrht his needed to test myself for it t o work. 
+
+
+
+--------------
+22/07
+
+Made the dbt work. 
+Several things needed to be considered. 
+Claude was lost, better to use github of well configured project.
+
+Important learning -> The db duckdb used by dbt to access the ducklake need to have a different name 
+than the lake itself...
+
+
+Finally
+- Created the ducklake 
+- created dlt pipipline wirting into it
+- Created dbt project reading and writing into it.
+
+need to implement absolute path with {{pwd}} and jsutify? 

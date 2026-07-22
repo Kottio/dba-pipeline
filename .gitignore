@@ -45,3 +45,4 @@ prior-testing/dbt-ducklake/target/
 data/
 
 prior-testing/
+uv.lock

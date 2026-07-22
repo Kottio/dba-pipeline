@@ -71,3 +71,29 @@ views live in the catalog · tables live as Parquet
 **Also shipped (by Tom, solo):** the real lake's birth certificate — `infra/ducklake-setup.sh` created `data/lake_catalog.ducklake` in its final home — and the decision that all non-uv binaries (duckdb CLI, dbt Fusion) get their own recipe in `infra/setup_server.sh`, the future Dockerfile's first draft.
 
 **Rules reinforced:** file catalogs hate concurrent sessions (the droplet's Postgres catalog is now justified by lived experience, not just ADR 0001) · create the lake explicitly, in its final home, DATA_PATH declared · `dev_mode` never in real pipelines.
+
+## The Exam — sandbox rebuilt solo — 2026-07-21
+
+**Task:** Tom rebuilds the whole dlt+DuckLake setup from scratch, from memory, to consolidate. AI on call only when surprised.
+
+**What the AI got wrong (twice):**
+- Claimed omitting dlt's `[storage]` block makes dlt defer to the catalog's recorded path. False — dlt *synthesizes* a default from `ducklake_name` and announces it (error #4).
+- Claimed DuckLake resolves a relative DATA_PATH to absolute at creation. False — recorded verbatim (error #5).
+
+**What the human did right:** refused to accept "it can't work without X" when memory said otherwise ("No, because before I made it work without the absolute path") — and was correct: the earlier success was dlt-as-creator, a different consistent world. Tested variants until the full map emerged: four consistent path configurations, each verified by hand. In Tom's words: *"Claude was struggling a lot with this — needed to test myself for it to work."*
+
+**Outcome:** complete understanding of DuckLake path semantics (birth-time recording, byte-identical announcement, cwd traps), a production decision (`$(pwd)`-computed absolute paths in infra, mirrored via config), and the exam's dlt half passed without notes. dbt half remains.
+
+**Meta-lesson for the log:** five AI errors in five days, every one caught by the human testing against ground truth. The collaboration works *because* the human distrusts correctly — this is the skill the mentoring should teach first.
+
+## The Exam, part 2 — dbt half, and the alias collision — 2026-07-22
+
+**Task:** finish the solo rebuild: dbt Fusion reading dlt's tables in the shared lake.
+
+**The saga:** Fusion attached the lake as plain `duckdb` — invisible schemas, hours of hunting. The AI burned seven theories (orphan metadata wings, engine version skew, a Fusion .200 regression — refuted by Tom, who checked the timeline; dlt metadata formats; relative DATA_PATH). The decisive probes were real: `duckdb_databases()` type column, mtime forensics, a fresh-catalog differential test. But the answer was Tom's:
+
+**Failure mode #7 — the alias collision.** DuckDB names a database after its filename stem: `path: data/lake.duckdb` enters the engine as database `lake`, colliding with `attach: alias: lake`. The scratch db wore the lake's name; the real DuckLake attach was shadowed. Every clue retrofits: the 17th worked (dev vs my_ducklake — no collision), `fresh` worked (unique alias), scratch mtime moved while the catalog's never did. **Rule: an attach alias must never equal the filename stem of the path database.**
+
+**Also learned:** profile `schema:` sets the target's base schema cleanly; `+schema:` concatenates (`main_analytics`) until `generate_schema_name` is overridden — queued for the real transform/.
+
+**Outcome: EXAM PASSED.** Lake with `lake_schema` (dlt) + `analytics` (dbt), rebuilt solo, every failure understood. The human found the final bug with the AI's own methods — differential tests and file forensics. The mentoring flipped: this story is his to teach now.

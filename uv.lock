@@ -8,6 +8,12 @@ resolution-markers = [
     "platform_python_implementation == 'PyPy' and sys_platform != 'emscripten' and sys_platform != 'win32'",
 ]
 
+[manifest]
+members = [
+    "dbuilders-pip",
+    "secondfulltest",
+]
+
 [[package]]
 name = "certifi"
 version = "2026.6.17"
@@ -530,6 +536,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/6a/e5/1064c43203a357d66
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0b/35/1cceccc5fcb50fa2ed53e2aa278cd032f3902682a73e763fb1ac3be8e6fa/rich_argparse-1.8.0-py3-none-any.whl", hash = "sha256:d2a3ce7854654e2253c578763ab0a32f05016f23a55fadba7b9a91b6c0e92142", size = 25616, upload-time = "2026-05-01T15:18:42.395Z" },
 ]
+
+[[package]]
+name = "secondfulltest"
+version = "0.1.0"
+source = { virtual = "prior-testing/SecondFullTest" }
+dependencies = [
+    { name = "dlt", extra = ["ducklake"] },
+]
+
+[package.metadata]
+requires-dist = [{ name = "dlt", extras = ["ducklake"], specifier = ">=1.29.0" }]
 
 [[package]]
 name = "semver"

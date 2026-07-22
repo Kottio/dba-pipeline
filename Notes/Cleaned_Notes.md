@@ -235,6 +235,76 @@ Trois couches de recettes, désormais complètes :
 
 ---
 
+## 21/07 — L'EXAMEN : refaire le pipeline from scratch (SecondFullTest)
+
+Refait le pipeline de zéro, en solo. J'ai galéré — et c'est là que ça s'est ancré.
+Claude s'est trompé plusieurs fois sur les chemins ; **il a fallu tester moi-même pour que ça marche.**
+
+### Setup (les commandes qui restent)
+
+```bash
+uv init --bare
+uv add "dlt[ducklake]"          # (+ postgres quand la vraie source arrivera)
+uv run dlt init foo ducklake    # scaffold .dlt/{config,secrets}.toml
+```
+
+### La règle d'or découverte en galérant
+
+Le catalogue enregistre son DATA_PATH **à la naissance, tel quel** (relatif reste relatif,
+absolu reste absolu). dlt **annonce toujours** un chemin (le sien par défaut : `<cwd>/<ducklake_name>.files/`).
+**naissance et annonce doivent être identiques octet par octet** — sinon : `DATA_PATH does not match`.
+
+### Les 4 mondes qui marchent (testés)
+
+1. **dlt crée le lac lui-même** (pas de création manuelle, pas de [storage]) — simple mais
+   le lac naît en effet de bord, chemin dicté par l'outil. Fragile (dépend du cwd du premier run).
+2. **Chemin par défaut, annoncé** : création manuelle SANS DATA_PATH → le catalogue enregistre
+   le défaut absolu (`<catalog>.files/` adjacent) → `bucket_url` copie exactement cette chaîne :
+
+```bash
+mkdir data
+duckdb -c "ATTACH 'ducklake:data/my_ducklake.ducklake' AS lake;"   # sans DATA_PATH
+```
+```toml
+[destination.ducklake.credentials]
+ducklake_name = "my_ducklake"
+catalog = "duckdb:///data/my_ducklake.ducklake"
+[destination.ducklake.credentials.storage]
+bucket_url = "file:///.../SecondFullTest/data/my_ducklake.ducklake.files/"   # = le défaut, absolu
+```
+
+3. **Tout relatif** : DATA_PATH relatif à la naissance + bucket_url relatif — marche,
+   MAIS tout doit toujours tourner depuis le même dossier :
+
+```bash
+duckdb -c "ATTACH 'ducklake:data/lake.ducklake' AS lake (DATA_PATH 'data/lake_files');"
+```
+```toml
+bucket_url = "file:data/lake_files/"    # URL relative — borderline, ne pas enseigner
+```
+
+   ⚠️ **Le piège du relatif** : depuis un autre dossier, le même ATTACH crée silencieusement
+   un NOUVEAU lac vide (pas d'erreur !). dbt tourne depuis transform/, Dagster depuis ailleurs →
+   en multi-outils le relatif casse.
+
+4. **Absolu explicite, calculé** — le pattern de prod : `DATA_PATH '$(pwd)/data/lake_files/'`
+   dans le script de setup, la même chaîne (préfixée `file://`) dans chaque client via `.env`.
+   Déclaré, absolu, portable. **C'est celui du vrai repo.**
+
+### Pièges divers de la session
+
+- `destination="ducklake"` = le TYPE (menu fixe) — pas le nom du lac (régression faite et corrigée).
+- 3 lignes dans table_foo = mes 3 items de test, pas un mystère append.
+- `/data/...` avec slash initial = racine du Mac, pas le dossier du projet !
+- Vérif avant de lancer : `duckdb <catalog> -c "SELECT value FROM ducklake_metadata WHERE key='data_path';"`
+
+### Reste à faire pour finir l'examen
+
+dbt : profile attach, sources (dont `lake_schema.table_foo` de dlt), un modèle dans le lac,
+`SHOW ALL TABLES` → trois artisans, un lac.
+
+---
+
 ## 📌 RÉCAP — tout ce qu'on a vu jusqu'ici
 
 **Le modèle mental (4 lignes) :**

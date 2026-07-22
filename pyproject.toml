@@ -6,3 +6,8 @@ dependencies = [
     "dlt[ducklake,postgres]>=1.29.0",
     "pandas>=3.0.3",
 ]
+
+[tool.uv.workspace]
+members = [
+    "prior-testing/SecondFullTest",
+]

@@ -20,13 +20,18 @@
 | 7 | Semantic + MCP | governed metrics, MCP server, LLM Q&A demo | ⬜ |
 | 8 | Droplet (the finale) | DO VPS, Docker packaging of everything, catalog → Postgres, deploy-on-merge, trust & polish | ⬜ |
 
+> 📚 Practices & reference repos: see [best-practices.md](best-practices.md) — the waiting room for everything adopted from elsewhere (datalab repo: env_var() profiles, justfile, …).
+
 ## 📍 Next step (updated each session)
 
-**2026-07-17 →** Phase 1: `uv init` the project, add the first real dependency (nothing before it's needed), pin `dbt-fusion 2.0.0-preview.196` in README prerequisites.
-Then Phase 2 needs one answer: **prod Postgres — DO managed or self-installed on a droplet?** → create `analytics_ro` user accordingly.
+**2026-07-22 → EXAM PASSED** (see ai-log: seven failure modes, alias collision finale).
+Sandbox era closed. Now: **the real build — Phase 2, ingestion.**
 
-
-**Suggested repo name:** `course-lakehouse` (or `ae-lakehouse-demo`) — public from day one.
+1. Real `transform/`-style setup in the main repo: profile with `env_var()` attach,
+   `generate_schema_name` override, scratch db named ≠ any alias.
+2. dlt against the course-platform Postgres — read-only `analytics_ro` user, SSL.
+   **Blocking question, unchanged: DO managed database or self-installed on a droplet?**
+3. First real table lands in `data/lake_catalog.ducklake` → first real dbt staging model.
 
 ## Architecture
 
